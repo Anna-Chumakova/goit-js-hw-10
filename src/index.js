@@ -50,14 +50,17 @@ const insertContent = (country) => {
     }
     if (country.length < 10 & country.length > 1) {
         cleaneCountryEl();
+        cleanCountryListEl();
         const result = generateContentListCountry(country);
         countryListEl.innerHTML = result; 
     }
     if (country.length === 1) {
         cleanCountryListEl();
+        cleaneCountryEl();
         const result = generateContentForOneCountry(country);
         countryEl.innerHTML = result;
     }
 }
+
 const cleaneCountryEl = () => countryEl.innerHTML = "";
 const cleanCountryListEl = () => countryListEl.innerHTML = "";
