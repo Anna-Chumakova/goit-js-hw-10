@@ -11,21 +11,42 @@ const countryEl = document.querySelector(".country-info");
 inputEl.addEventListener("input", debounce(onSearch, DEBOUNCE_DELAY));
 
 function onSearch(e) {
-    const searchQuery = e.target.value.trim().toLowerCase();
+    const searchQuery = e.target.value.trim();
     if (searchQuery === "") {
-        cleaneCountryEl();
-        cleanCountryListEl();
+        cleaneResult();
         return;
     }
-    fetchCountries(searchQuery).then(insertContent)
+    fetchCountries(searchQuery)
+        .then((country) => {
+            if (country.length > 10) {
+                return Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
+            }
+            insertContent(country);
+        })
         .catch((error) => {
-            cleaneCountryEl();
-            cleanCountryListEl();
-            Notiflix.Notify.warning("Oops, there is no country with that name");
+            cleaneResult();
+            if (message = "Not Found") {
+            Notiflix.Notify.failure('Oops, there is no country with that name');
+            }
+            console.log(error);
         });
 }
 
-const createListCountry = ({flags, name}) => `<li class="country-item">
+const insertContent = (country) => {
+    cleaneResult();
+    
+    if (country.length < 10 & country.length > 1) {
+        const result = generateContentListCountry(country);
+        countryListEl.innerHTML = result;
+    }
+    else if (country.length === 1) {
+        const result = generateContentForOneCountry(country);
+        countryEl.innerHTML = result;
+    }
+}
+
+
+const createListCountry = ({ flags, name }) => `<li class="country-item">
         <img src="${flags.svg}" alt="flag" width="70px" height="50px">
         <p class="country-name">${name.official}</p>
       </li>`;
@@ -42,25 +63,7 @@ const generateContentListCountry = (country) => country?.reduce((acc, country) =
 
 const generateContentForOneCountry = (country) => country?.reduce((acc, country) => acc + createOneCountry(country), "");
 
-const insertContent = (country) => {
-    if (country.length > 10) {
-        cleaneCountryEl();
-        cleanCountryListEl();
-        return Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
-    }
-    if (country.length < 10 & country.length > 1) {
-        cleaneCountryEl();
-        cleanCountryListEl();
-        const result = generateContentListCountry(country);
-        countryListEl.innerHTML = result; 
-    }
-    if (country.length === 1) {
-        cleanCountryListEl();
-        cleaneCountryEl();
-        const result = generateContentForOneCountry(country);
-        countryEl.innerHTML = result;
-    }
+function cleaneResult() {
+    countryEl.innerHTML = "";
+    countryListEl.innerHTML = "";
 }
-
-const cleaneCountryEl = () => countryEl.innerHTML = "";
-const cleanCountryListEl = () => countryListEl.innerHTML = "";
