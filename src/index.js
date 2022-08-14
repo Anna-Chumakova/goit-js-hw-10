@@ -11,30 +11,26 @@ const countryEl = document.querySelector(".country-info");
 inputEl.addEventListener("input", debounce(onSearch, DEBOUNCE_DELAY));
 
 function onSearch(e) {
+    cleaneResult();
     const searchQuery = e.target.value.trim();
     if (searchQuery === "") {
-        cleaneResult();
         return;
     }
     fetchCountries(searchQuery)
         .then((country) => {
-            if (country.length > 10) {
-                return Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
-            }
+            alertManyCountry(country);
             insertContent(country);
         })
-        .catch((error) => {
-            cleaneResult();
-            if (message = "Not Found") {
-            Notiflix.Notify.failure('Oops, there is no country with that name');
+        .catch((er) => {
+            if (er.code === 404) {
+                Notiflix.Notify.failure('Oops, there is no country with that name');
+                return;
             }
-            console.log(error);
+            Notiflix.Notify.failure('Unknown error');
         });
 }
 
 const insertContent = (country) => {
-    cleaneResult();
-    
     if (country.length < 10 & country.length > 1) {
         const result = generateContentListCountry(country);
         countryListEl.innerHTML = result;
@@ -45,7 +41,11 @@ const insertContent = (country) => {
     }
 }
 
-
+const alertManyCountry = (country) => {
+    if (country.length > 10) {
+        return Notiflix.Notify.info("Too many matches found. Please enter a more specific name.");
+    }
+}
 const createListCountry = ({ flags, name }) => `<li class="country-item">
         <img src="${flags.svg}" alt="flag" width="70px" height="50px">
         <p class="country-name">${name.official}</p>
